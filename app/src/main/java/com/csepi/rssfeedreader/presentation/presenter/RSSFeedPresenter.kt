@@ -25,7 +25,7 @@ class RSSFeedPresenter(private val view: RSSFeedView?) {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ feed ->
                     feed?.let {
-                        view?.showArticles(it.channel?.articles)
+                        view?.showArticles(it.channel?.articles!!)
                     }
                 }, {
                     view?.showError(it)

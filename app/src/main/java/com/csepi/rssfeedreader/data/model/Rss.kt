@@ -6,5 +6,5 @@ import org.simpleframework.xml.Root
 @Root(name = "rss", strict = false)
 data class Rss(
         @field:Element(name = "channel")
-        @param:Element(name = "channel")
-               var channel: Channel? = null)
+        var channel: Channel? = null
+)
