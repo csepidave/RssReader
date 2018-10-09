@@ -3,7 +3,8 @@ package com.csepi.rssfeedreader.presentation.view
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.widget.Toast
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import com.csepi.rssfeedreader.R
 import com.csepi.rssfeedreader.data.model.Article
 import com.csepi.rssfeedreader.presentation.presenter.RSSFeedPresenter
@@ -25,27 +26,53 @@ class RSSFeedActivity : AppCompatActivity(), RSSFeedView {
         recyclerView.layoutManager = linearLayoutManager
         feedAdapter.shareClickListener = (object: FeedAdapter.OnShareClickListener {
             override fun onShareClick(position: Int, item: Article) {
-                Toast.makeText(applicationContext, "Share", Toast.LENGTH_LONG).show()
+                rssFeedPresenter.shareArticleWithLink(item.link, item.articleTitle,
+                        applicationContext)
             }
         })
         recyclerView.adapter = feedAdapter
-        rssFeedPresenter.getRssContent("24ora/rss?rovatkeres=osszes")
+        swipeRefreshLayout.isEnabled = false
+        loadData(false)
+
+        swipeRefreshLayout.setOnRefreshListener {
+            loadData(true)
+        }
+    }
+
+    private fun loadData(pullToRefresh: Boolean) {
+        rssFeedPresenter.getRssContent("24ora/rss?rovatkeres=osszes", pullToRefresh)
     }
 
     override fun showArticles(articles: List<Article>) {
-            feedAdapter.setData(articles)
+        recyclerView.visibility = VISIBLE
+        feedAdapter.setData(articles)
+    }
+
+    override fun hideError() {
+        errorView.visibility = GONE
+    }
+
+    override fun enablePullToRefresh(enable: Boolean) {
+        swipeRefreshLayout.isEnabled = enable
+    }
+
+    override fun hideRefreshIndicator() {
+        swipeRefreshLayout.isRefreshing = false
     }
 
     override fun showError(error: Throwable) {
-        Toast.makeText(this, error.message, Toast.LENGTH_LONG).show()
+        errorView.visibility = VISIBLE
+        errorView.text = error.message
+        feedAdapter.setData(mutableListOf())
+        recyclerView.visibility = GONE
     }
 
     override fun startLoading() {
-
+        progressBar.visibility = VISIBLE
     }
 
     override fun stopLoading() {
-
+        progressBar.visibility = GONE
     }
 
     override fun onDestroy() {
